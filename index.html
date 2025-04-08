@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Skibidi Driving Game (Sprite)</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: black;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+      margin: auto;
+      background-color: #222;
+      border: 3px solid #00ff00;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="600" height="400"></canvas>
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const keys = {};
+
+    document.addEventListener("keydown", e => keys[e.key] = true);
+    document.addEventListener("keyup", e => keys[e.key] = false);
+
+    const carImage = new Image();
+    carImage.src = "car.png"; // make sure this file exists
+
+    const car = {
+      x: 280,
+      y: 300,
+      width: 40,
+      height: 70,
+      velocityX: 0,
+      velocityY: 0,
+      accel: 0.2,
+      maxSpeed: 4,
+      friction: 0.05
+    };
+
+    function update() {
+      if (keys["ArrowUp"])    car.velocityY -= car.accel;
+      if (keys["ArrowDown"])  car.velocityY += car.accel;
+      if (keys["ArrowLeft"])  car.velocityX -= car.accel;
+      if (keys["ArrowRight"]) car.velocityX += car.accel;
+
+      car.velocityX *= (1 - car.friction);
+      car.velocityY *= (1 - car.friction);
+
+      car.velocityX = Math.max(-car.maxSpeed, Math.min(car.maxSpeed, car.velocityX));
+      car.velocityY = Math.max(-car.maxSpeed, Math.min(car.maxSpeed, car.velocityY));
+
+      car.x += car.velocityX;
+      car.y += car.velocityY;
+
+      car.x = Math.max(0, Math.min(canvas.width - car.width, car.x));
+      car.y = Math.max(0, Math.min(canvas.height - car.height, car.y));
+    }
+
+    function drawCar() {
+      ctx.drawImage(carImage, car.x, car.y, car.width, car.height);
+    }
+
+    function drawTrack() {
+      ctx.fillStyle = "#333";
+      ctx.fillRect(150, 0, 300, canvas.height);
+    }
+
+    function gameLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawTrack();
+      update();
+      drawCar();
+      requestAnimationFrame(gameLoop);
+    }
+
+    carImage.onload = () => {
+      gameLoop();
+    };
+  </script>
+</body>
+</html>
