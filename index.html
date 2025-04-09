@@ -18,7 +18,7 @@
   </style>
 </head>
 <body>
-  <canvas id="gameCanvas" width="600" height="400"></canvas>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
   <script>
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
@@ -32,43 +32,47 @@
     carImage.src = "4c037f9eebcc9e5b66863023999b11ae.jpg"; // make sure this file exists
 
     const car = {
-      x: 280,
-      y: 300,
-      width: 40,
-      height: 70,
-      velocityX: 0,
-      velocityY: 0,
+      x: canvas.width / 2,
+      y: canvas.height - 120,
+      width: 60, // Increased size
+      height: 90, // Increased size
+      velocity: 0,
+      angle: 0, // Added angle property
       accel: 0.2,
-      maxSpeed: 4,
-      friction: 0.05
+      maxSpeed: 5,
+      friction: 0.1,
+      turningSpeed: 0.03
     };
 
     function update() {
-      if (keys["ArrowUp"])    car.velocityY -= car.accel;
-      if (keys["ArrowDown"])  car.velocityY += car.accel;
-      if (keys["ArrowLeft"])  car.velocityX -= car.accel;
-      if (keys["ArrowRight"]) car.velocityX += car.accel;
+      if (keys["ArrowUp"]) car.velocity += car.accel;
+      if (keys["ArrowDown"]) car.velocity -= car.accel;
+      if (keys["ArrowLeft"]) car.angle -= car.turningSpeed;
+      if (keys["ArrowRight"]) car.angle += car.turningSpeed;
 
-      car.velocityX *= (1 - car.friction);
-      car.velocityY *= (1 - car.friction);
+      car.velocity *= (1 - car.friction);
 
-      car.velocityX = Math.max(-car.maxSpeed, Math.min(car.maxSpeed, car.velocityX));
-      car.velocityY = Math.max(-car.maxSpeed, Math.min(car.maxSpeed, car.velocityY));
+      car.velocity = Math.max(-car.maxSpeed, Math.min(car.maxSpeed, car.velocity));
 
-      car.x += car.velocityX;
-      car.y += car.velocityY;
+      car.x += car.velocity * Math.cos(car.angle);
+      car.y += car.velocity * Math.sin(car.angle);
 
+      // Keep the car within canvas bounds
       car.x = Math.max(0, Math.min(canvas.width - car.width, car.x));
       car.y = Math.max(0, Math.min(canvas.height - car.height, car.y));
     }
 
     function drawCar() {
-      ctx.drawImage(carImage, car.x, car.y, car.width, car.height);
+      ctx.save();
+      ctx.translate(car.x + car.width / 2, car.y + car.height / 2);
+      ctx.rotate(car.angle);
+      ctx.drawImage(carImage, -car.width / 2, -car.height / 2, car.width, car.height);
+      ctx.restore();
     }
 
     function drawTrack() {
       ctx.fillStyle = "#333";
-      ctx.fillRect(150, 0, 300, canvas.height);
+      ctx.fillRect(150, 0, canvas.width - 300, canvas.height);
     }
 
     function gameLoop() {
