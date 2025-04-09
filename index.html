@@ -51,13 +51,11 @@
       if (keys["ArrowRight"]) car.angle += car.turningSpeed;
 
       car.velocity *= (1 - car.friction);
-
       car.velocity = Math.max(-car.maxSpeed, Math.min(car.maxSpeed, car.velocity));
 
       car.x += car.velocity * Math.cos(car.angle);
       car.y += car.velocity * Math.sin(car.angle);
 
-      // Keep the car within canvas bounds
       car.x = Math.max(0, Math.min(canvas.width - car.width, car.x));
       car.y = Math.max(0, Math.min(canvas.height - car.height, car.y));
     }
